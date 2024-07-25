@@ -38,9 +38,15 @@ const pathDownRight = "4"
 const pathUpLeft = "5"
 const pathUpRight = "6"
 
-const pathSprites = [pathHorizontal, pathVertical, pathDownLeft, pathDownRight, pathUpLeft, pathUpRight]
-const healthSprites = [health0bar, health1bar, health2bar, health3bar]
-const monsterSprites = [monsterLeft, monsterRight]
+const pathTypes = [pathHorizontal, pathVertical, pathDownLeft, pathDownRight, pathUpLeft, pathUpRight]
+const healthBarTypes = [health0bar, health1bar, health2bar, health3bar]
+const monsterTypes = [monsterLeft, monsterRight]
+
+const TICKMS = 100;
+
+let moneyCount = 9
+let gameTickCounter = 0
+let monsterSpeed = 500
 
 setLegend(
   [select, bitmap`
@@ -184,6 +190,7 @@ setLegend(
 
   [health3bar, bitmap`
 ................
+................
 ...0000000000...
 ..044444444440..
 ...0000000000...
@@ -197,9 +204,9 @@ setLegend(
 ................
 ................
 ................
-................
 ................`],
   [health2bar, bitmap`
+................
 ................
 ...0000000000...
 ..033334444440..
@@ -214,9 +221,9 @@ setLegend(
 ................
 ................
 ................
-................
 ................`],
   [health1bar, bitmap`
+................
 ................
 ...0000000000...
 ..033333344440..
@@ -231,14 +238,13 @@ setLegend(
 ................
 ................
 ................
-................
 ................`],
   [health0bar, bitmap`
+................
 ................
 ...0000000000...
 ..033333333330..
 ...0000000000...
-................
 ................
 ................
 ................
@@ -450,17 +456,15 @@ const levels = [
 zyxwtes.ch
 ...mbna...
 .f1111113.
-........2.
+.mm..m..2.
 .41111115.
-.2........
+.2.nnnnn..
 .6111111p.
-..........`
+.mmmmmmm..`
 ]
 
 setBackground("0")
 setMap(levels[level])
-
-let moneyCount = 2
 
 setPushables({
   [select]: []
@@ -484,12 +488,13 @@ onInput("s", () => {
 })
 
 onInput("i", () => {
-  const spriteType = tank
+  const spriteType = monsterLeft
   const specificSprite = getTile(getFirst(select).x, getFirst(select).y).find(sprite => sprite.type === spriteType)
   if (specificSprite) {
     specificSprite.remove()
     moneyCount = moneyCount + 1
-  } else {
+  }
+  else {
     if (moneyCount >= 2) {
       addSprite(getFirst(select).x, getFirst(select).y, spriteType)
       moneyCount = moneyCount - 2
@@ -501,6 +506,18 @@ onInput("i", () => {
 
 
 afterInput(() => {
+})
+
+
+setInterval(() => {
+  if (gameTickCounter < 1400) {
+    gameTickCounter += TICKMS
+  }
+  else {
+    gameTickCounter = 0
+  }
+
+  clearText()
   addText(moneyCount.toString(), { 
     x: 17,
     y: 1,
@@ -512,6 +529,17 @@ afterInput(() => {
     color: color`2`
   })
 
+  let healthBarSprites = []
+  healthBarTypes.forEach(type => {
+    healthBarSprites = healthBarSprites.concat(getAll(type))
+  })
+  healthBarSprites.forEach(sprite => sprite.remove())
+
+  let monsterSprites = []
+  monsterTypes.forEach(type => {
+    monsterSprites = monsterSprites.concat(getAll(type))
+  })
+  monsterSprites.forEach(sprite => addSprite(sprite.x, sprite.y, health3bar));
   
-  
-})
+}, TICKMS)
+

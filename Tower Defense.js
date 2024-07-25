@@ -8,32 +8,94 @@ https://sprig.hackclub.com/gallery/getting_started
 @addedOn: 2024-00-00
 */
 
-const lostheart = "l"
+const select = "a"
+
+const greyHeart = "l"
 const heart = "h"
 const coin = "c"
 
 const flag = "f"
 const portal = "p"
-const tower = "t"
+const tank = "t"
+const bullet = "b"
 
 const explosion = "e"
 const smoke = "s"
 
-const healthbar = "u"
-const lmonster = "m"
-const rmonster = "n"
+const health3bar = "z"
+const health2bar = "y"
+const health1bar = "x"
+const health0bar = "w"
 
+const monsterLeft = "m"
+const monsterRight = "n"
 
 const floor = "0"
-const xpath = "1"
-const ypath = "2"
-const dlpath = "3"
-const drpath = "4"
-const ulpath = "5"
-const urpath = "6"
+const pathHorizontal = "1"
+const pathVertical = "2"
+const pathDownLeft = "3"
+const pathDownRight = "4"
+const pathUpLeft = "5"
+const pathUpRight = "6"
+
+const pathSprites = [pathHorizontal, pathVertical, pathDownLeft, pathDownRight, pathUpLeft, pathUpRight]
+const healthSprites = [health0bar, health1bar, health2bar, health3bar]
+const monsterSprites = [monsterLeft, monsterRight]
 
 setLegend(
-  [lostheart, bitmap`
+  [select, bitmap`
+2222........2222
+2..............2
+2..............2
+2..............2
+................
+................
+................
+................
+................
+................
+................
+................
+2..............2
+2..............2
+2..............2
+2222........2222`],
+  [tank, bitmap`
+..00000..00000..
+..0FFF0000FFF0..
+..0FF444444FF0..
+..0CC44DD44CC0..
+..0FF4DDDD4FF0..
+..0FF4DDDD4FF0..
+..0CC4DDDD4CC0..
+..0FF4DDDD4FF0..
+..0FF4DDDD4FF0..
+..0CC44DD44CC0..
+..0FF44DD44FF0..
+..0FFF0DD0FFF0..
+..00000DD00000..
+.....00DD00.....
+.....0DDDD0.....
+.....000000.....`],
+  [bullet, bitmap`
+................
+.....000000.....
+.....099960.....
+......0960......
+.....099690.....
+.....096690.....
+.....096690.....
+.....066990.....
+.....000000.....
+.....09CC90.....
+.....0CCC90.....
+.....0CC990.....
+......0C90......
+......0C90......
+.......00.......
+................`],
+  
+  [greyHeart, bitmap`
 ................
 ................
 ................
@@ -120,10 +182,10 @@ setLegend(
 .01111110.00....
 ..000000........`],
 
-  [healthbar, bitmap`
+  [health3bar, bitmap`
 ................
 ...0000000000...
-..033333444440..
+..044444444440..
 ...0000000000...
 ................
 ................
@@ -137,7 +199,60 @@ setLegend(
 ................
 ................
 ................`],
-  [lmonster, bitmap`
+  [health2bar, bitmap`
+................
+...0000000000...
+..033334444440..
+...0000000000...
+................
+................
+................
+................
+................
+................
+................
+................
+................
+................
+................
+................`],
+  [health1bar, bitmap`
+................
+...0000000000...
+..033333344440..
+...0000000000...
+................
+................
+................
+................
+................
+................
+................
+................
+................
+................
+................
+................`],
+  [health0bar, bitmap`
+................
+...0000000000...
+..033333333330..
+...0000000000...
+................
+................
+................
+................
+................
+................
+................
+................
+................
+................
+................
+................`],
+
+  
+  [monsterLeft, bitmap`
 ................
 ................
 ................
@@ -154,7 +269,7 @@ setLegend(
 ..00FFDDDDDD00..
 ...0000000000...
 ................`],
-  [rmonster, bitmap`
+  [monsterRight, bitmap`
 ................
 ................
 ................
@@ -206,23 +321,6 @@ LH0HH8888H88H00L
 L0H00HHHHH800H0L
 LL00HH008800H0LL
 1LLLLLLLLLLLLLL1`],
-  [tower, bitmap`
-1LLLLLLLLLLLLLL1
-LL000000009000LL
-L00090090000090L
-L09000003003000L
-L00030303030000L
-L90030030000090L
-L03003111103300L
-L00330L93L00030L
-L00000093030000L
-L03030193103309L
-L90001L93L10000L
-L00901093010090L
-L0000L1111L0000L
-L00000LLLL00000L
-LL000000000000LL
-1LLLLLLLLLLLLLL1`],
 
   [floor, bitmap`
 LLLLLLLLLLLLLLLL
@@ -241,7 +339,7 @@ LLLLLLLLLLLLLLLL
 1111111L1111111L
 1111111L1111111L
 1111111L1111111L`],
-  [xpath, bitmap`
+  [pathHorizontal, bitmap`
 1111111111111111
 LLLLLLLLLLLLLLLL
 0000000000000000
@@ -258,7 +356,7 @@ LLLLLLLLLLLLLLLL
 0000000000000000
 LLLLLLLLLLLLLLLL
 1111111111111111`],
-  [ypath, bitmap`
+  [pathVertical, bitmap`
 1L000006600000L1
 1L000006600000L1
 1L000000000000L1
@@ -275,7 +373,7 @@ LLLLLLLLLLLLLLLL
 1L000000000000L1
 1L000006600000L1
 1L000006600000L1`],
-  [dlpath, bitmap`
+  [pathDownLeft, bitmap`
 1111111111111111
 LLLLLLLLLLLLLLL1
 00000000000000L1
@@ -292,7 +390,7 @@ LLLLLLLLLLLLLLL1
 00000000000000L1
 LL000000000000L1
 1L000006600000L1`],
-  [drpath, bitmap`
+  [pathDownRight, bitmap`
 1111111111111111
 1LLLLLLLLLLLLLLL
 1L00000000000000
@@ -309,7 +407,7 @@ LL000000000000L1
 1L00000000000000
 1L000000000000LL
 1L000006600000L1`],
-  [ulpath, bitmap`
+  [pathUpLeft, bitmap`
 1L000006600000L1
 LL000000000000L1
 00000000000000L1
@@ -326,7 +424,7 @@ LL000000000000L1
 00000000000000L1
 LLLLLLLLLLLLLLL1
 1111111111111111`],
-  [urpath, bitmap`
+  [pathUpRight, bitmap`
 1L000006600000L1
 1L000000000000LL
 1L00000000000000
@@ -350,18 +448,24 @@ setSolids([])
 let level = 0
 const levels = [
   map`
-.......lhh
-...esc....
+zyxwtesclh
+...mbn....
 .f1111113.
-.......t2.
-u41111115.
-m2t.......
+........2.
+.41111115.
+.2........
 .6111111p.
 ..........`
 ]
 
 setBackground("0")
 setMap(levels[level])
+
+addText("3", { 
+  x: 19,
+  y: 1,
+  color: color`2`
+})
 
 setPushables({
   [player]: []

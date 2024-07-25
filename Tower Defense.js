@@ -12,7 +12,7 @@ const select = "a"
 
 const greyHeart = "l"
 const heart = "h"
-const coin = "c"
+const money = "c"
 
 const flag = "f"
 const portal = "p"
@@ -64,13 +64,13 @@ setLegend(
 ..00000..00000..
 ..0FFF0000FFF0..
 ..0FF444444FF0..
-..0CC44DD44CC0..
+..0LL44DD44LL0..
 ..0FF4DDDD4FF0..
 ..0FF4DDDD4FF0..
-..0CC4DDDD4CC0..
+..0LL4DDDD4LL0..
 ..0FF4DDDD4FF0..
 ..0FF4DDDD4FF0..
-..0CC44DD44CC0..
+..0LL44DD44LL0..
 ..0FF44DD44FF0..
 ..0FFF0DD0FFF0..
 ..00000DD00000..
@@ -129,23 +129,23 @@ setLegend(
 ......030.......
 .......0........
 ................`],
-  [coin, bitmap`
+  [money, bitmap`
 ................
-................
-................
-.........CCC....
-........C669C...
-.......C66966C..
-.......CC966CC..
-...CCC.C6CCC6C..
-..C669CCC669CC..
-.C66966C6CCC6C..
-.CC966CCC669CC..
-.C6CCC6C6CCC6C..
-..C669C.C669C...
-...CCC...CCC....
-................
-................`],
+.....00.........
+..000CC00.......
+...0CCC0........
+....0C0.........
+...0CCC0........
+..0CC6CC0.......
+.0C66666C0......
+0CC6C6C6C0......
+0CC666CCC0......
+0CCCC666C0......
+0CC6C6C6C0......
+.0C66666C0......
+.0CCC6CC0.......
+..00CCC0........
+....000.........`],
   
   [explosion, bitmap`
 ...00000...0000.
@@ -251,7 +251,6 @@ setLegend(
 ................
 ................`],
 
-  
   [monsterLeft, bitmap`
 ................
 ................
@@ -448,8 +447,8 @@ setSolids([])
 let level = 0
 const levels = [
   map`
-zyxwtesclh
-...mbn....
+zyxwtes.ch
+...mbna...
 .f1111113.
 ........2.
 .41111115.
@@ -461,20 +460,58 @@ zyxwtesclh
 setBackground("0")
 setMap(levels[level])
 
-addText("3", { 
-  x: 19,
-  y: 1,
-  color: color`2`
-})
+let moneyCount = 2
 
 setPushables({
-  [player]: []
+  [select]: []
 })
 
-onInput("s", () => {
-  getFirst(player).y += 1
+
+
+
+
+onInput("a", () => {
+  getFirst(select).x -= 1
 })
+onInput("d", () => {
+  getFirst(select).x += 1
+})
+onInput("w", () => {
+  getFirst(select).y -= 1
+})
+onInput("s", () => {
+  getFirst(select).y += 1
+})
+
+onInput("i", () => {
+  const spriteType = tank
+  const specificSprite = getTile(getFirst(select).x, getFirst(select).y).find(sprite => sprite.type === spriteType)
+  if (specificSprite) {
+    specificSprite.remove()
+    moneyCount = moneyCount + 1
+  } else {
+    if (moneyCount >= 2) {
+      addSprite(getFirst(select).x, getFirst(select).y, spriteType)
+      moneyCount = moneyCount - 2
+    }
+  }
+})
+
+
+
 
 afterInput(() => {
+  addText(moneyCount.toString(), { 
+    x: 17,
+    y: 1,
+    color: color`2`
+  })
+  addText("3", { 
+    x: 19,
+    y: 1,
+    color: color`2`
+  })
 
+  
+  
 })

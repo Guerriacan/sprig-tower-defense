@@ -25,7 +25,6 @@ const smoke = "j"
 const monsterHealth3 = "3"
 const monsterHealth2 = "2"
 const monsterHealth1 = "1"
-const monsterHealth0 = "0"
 
 const floor = "n"
 
@@ -51,7 +50,7 @@ const pathTypes = [
   pathLeftToUp, pathLeftToDown, pathRightToUp, pathRightToDown
 ]
 const monsterTypes = [
-  monsterHealth0, monsterHealth1, monsterHealth2, monsterHealth3
+  monsterHealth1, monsterHealth2, monsterHealth3
 ]
 
 var pathDirections = {}
@@ -68,17 +67,22 @@ pathDirections[pathLeftToRight] = { dx: 1, dy: 0, ex: -1, ey: 0 },
   pathDirections[pathRightToUp] = { dx: 0, dy: -1, ex: 1, ey: 0 },
   pathDirections[pathRightToDown] = { dx: 0, dy: 1, ex: 1, ey: 0 }
 
-const TICKMS = 100
+const TICKMS = 50
 var gameTickCounter = 0
 
+var gameStart = true
 
 var lifeCount = 3
-var moneyCount = 4
-var bulletSpeed = 700
+var moneyCount = 2
+var bulletSpawnRate = 700
 var monsterSpeed = 800
-var monsterSpawnRate = 900
+var monsterSpawnChance = 30
+var monsterSpawnRate = 2000
+var moneySpawnRate = 5000
 
 setLegend(
+  
+  
   [select, bitmap`
 2222........2222
 2..............2
@@ -257,23 +261,6 @@ setLegend(
 ................
 ...0000000000...
 ..033333334440..
-...0000000000...
-................
-......000.......
-.....0FFF00.....
-....0FFFFFD0....
-...0FFFFFFDD0...
-...0FF3F3DDD0...
-..0FFF3F3DDDD0..
-..0FFFFFDDDDD0..
-..00FFDDDDDD00..
-...0000000000...
-................`],
-  [monsterHealth0, bitmap`
-................
-................
-...0000000000...
-..033333333330..
 ...0000000000...
 ................
 ......000.......
@@ -549,13 +536,13 @@ LL000000000000L1
 
 let level = 0
 const levels = [map`
-........dc
-f.zoooou..
-q.q.a..r..
-q.qvpx.r..
-e.tw.tpw..
-.....vppe.
-..pp.yf...
+.......adc
+..........
+.eoooooou.
+........r.
+.vppppppw.
+.r........
+.yoooooof.
 ..........`]
 
 setBackground("n")
@@ -590,7 +577,7 @@ function moveBullets() {
     const monstersInTile = getTile(bullet.x, bullet.y).filter(sprite => monsterTypes.includes(sprite.type))
     if (monstersInTile.length > 0) {
       const monsterHit = monstersInTile[0]
-      if (monsterHit.type === monsterHealth0) {
+      if (monsterHit.type === monsterHealth1) {
         monsterHit.remove()
         addSprite(bullet.x, bullet.y, smoke)
       } else {
@@ -603,9 +590,12 @@ function moveBullets() {
 
 
 function spawnMonster(x, y) {
-  if (getTile(x, y).find(sprite => pathTypes.includes(sprite.type))) {
-    if (!getTile(x, y).some(sprite => monsterTypes.includes(sprite.type))) {
-      addSprite(x, y, monsterTypes[Math.floor(Math.random() * monsterTypes.length)])
+  let chance = Math.floor(Math.random() * 100 + 1)
+  if (chance <= monsterSpawnChance) {
+    if (getTile(x, y).find(sprite => pathTypes.includes(sprite.type))) {
+      if (!getTile(x, y).some(sprite => monsterTypes.includes(sprite.type))) {
+        addSprite(x, y, monsterTypes[2])
+      }
     }
   }
 }
@@ -664,31 +654,39 @@ onInput("s", () => {
 onInput("i", () => {
   interactTank()
 })
-onInput("k", () => {
-  spawnBullet()
-})
-onInput("l", () => {
-  getAll(portal).forEach(portal => {
-    spawnMonster(portal.x, portal.y)
-  })
-})
 
 setInterval(() => {
-  if (gameTickCounter < 1900) {
+  if (gameTickCounter < 99900) {
     gameTickCounter += TICKMS
   } else {
     gameTickCounter = 0
   }
-  if (gameTickCounter % monsterSpeed == 0) {
-    getAll(explosion).forEach(explosion => { explosion.remove() });
-    moveMonsters()
-    intervalCounter = 0;
+  if (gameStart) {
+    if (gameTickCounter % monsterSpeed == 0) {
+      getAll(explosion).forEach(explosion => { explosion.remove() });
+      getAll(portal).forEach(portal => {
+        spawnMonster(portal.x, portal.y)
+      })
+      moveMonsters()
+      intervalCounter = 0;
+    }
+    if (gameTickCounter % bulletSpawnRate == 0) {
+      getAll(smoke).forEach(smoke => { smoke.remove() });
+      spawnBullet()
+    }
+  
+    if (gameTickCounter % moneySpawnRate == 0) {
+      if (moneyCount < 10) {
+        moneyCount++
+      }
+    }
   }
-  if (gameTickCounter % bulletSpeed == 0) {
-    spawnBullet()
-  }
-  getAll(smoke).forEach(smoke => { smoke.remove() });
+  
   moveBullets()
+
+  if (lifeCount <= 0) {
+    gameStart = false
+  }
 
   clearText()
   addText(moneyCount.toString(), {

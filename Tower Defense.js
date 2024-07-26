@@ -49,25 +49,29 @@ const pathTypes = [
   pathUpToLeft, pathUpToRight, pathDownToLeft, pathDownToRight,
   pathLeftToUp, pathLeftToDown, pathRightToUp, pathRightToDown
                   ]
-const pathDirections = {
-    pathRightToLeft: { dx: -1, dy: 0 },
-    pathLeftToRight: { dx: 1, dy: 0 },
-    pathUpToDown: { dx: 0, dy: 1 },
-    pathDownToUp: { dx: 0, dy: -1 },
-    pathUpToLeft: { dx: -1, dy: 0 },
-    pathUpToRight: { dx: 1, dy: 0 },
-    pathDownToLeft: { dx: -1, dy: 0 },
-    pathDownToRight: { dx: 1, dy: 0 },
-    pathLeftToUp: { dx: 0, dy: -1 },
-    pathLeftToDown: { dx: 0, dy: 1 },
-    pathRightToUp: { dx: 0, dy: -1 },
-    pathRightToDown: { dx: 0, dy: 1 }
-  };
+const monsterTypes = [
+  monsterHealth0, monsterHealth1, monsterHealth2, monsterHealth3
+]
+
+var pathDirections = {}
+pathDirections[pathRightToLeft] = { dx: -1, dy: 0 }
+pathDirections[pathLeftToRight] = { dx: 1, dy: 0 },
+pathDirections[pathUpToDown] = { dx: 0, dy: 1 },
+pathDirections[pathDownToUp] = { dx: 0, dy: -1 },
+pathDirections[pathUpToLeft] = { dx: -1, dy: 0 },
+pathDirections[pathUpToRight] = { dx: 1, dy: 0 },
+pathDirections[pathDownToLeft] = { dx: -1, dy: 0 },
+pathDirections[pathDownToRight] = { dx: 1, dy: 0 },
+pathDirections[pathLeftToUp] = { dx: 0, dy: -1 },
+pathDirections[pathLeftToDown] = { dx: 0, dy: 1 },
+pathDirections[pathRightToUp] = { dx: 0, dy: -1 },
+pathDirections[pathRightToDown] = { dx: 0, dy: 1 }
 
 const TICKMS = 100;
-let gameTickCounter = 0
+var gameTickCounter = 0
 
-let moneyCount = 9
+var lifeCount = 3
+var moneyCount = 4
 
 setLegend(
   [select, bitmap`
@@ -278,7 +282,6 @@ setLegend(
 ...0000000000...
 ................`],
 
-  
   [flag, bitmap`
 1LLLLLLLLLLLLLL1
 LLFFFFFFFFFFFFLL
@@ -469,7 +472,6 @@ LL000000000000L1
 1L000000000000LL
 1L000006600000L1`],
   
-  
   [pathLeftToUp, bitmap`
 1L000006600000L1
 LL000000000000L1
@@ -542,7 +544,7 @@ LL000000000000L1
 
 let level = 0
 const levels = [map`
-..........
+........dc
 ..zoooou..
 ..q.a..r..
 ..qvpx.r..
@@ -553,6 +555,49 @@ const levels = [map`
 
 setBackground("n")
 setMap(levels[level])
+
+function interactTank() {
+    const specificSprite = getTile(getFirst(select).x, getFirst(select).y).find(sprite => sprite.type === tank)
+  if (specificSprite) {
+    specificSprite.remove()
+    moneyCount = moneyCount + 1
+  }
+  else {
+    if (moneyCount >= 2) {
+      addSprite(getFirst(select).x, getFirst(select).y, tank)
+      moneyCount = moneyCount - 2
+    }
+  }
+}
+
+function spawnMonster(x,y) {
+  if (getTile(x, y).find(sprite => pathTypes.includes(sprite.type))) {
+    if (!getTile(x, y).some(sprite => monsterTypes.includes(sprite.type))) {
+      addSprite(getFirst(select).x, getFirst(select).y, monsterTypes[Math.floor(Math.random() * monsterTypes.length)])
+    }
+  }
+}
+
+function moveMonsters() {
+  const monsters = monsterTypes.flatMap(type => getAll(type))
+  monsters.forEach(monster => {
+    const currentX = monster.x
+    const currentY = monster.y
+    const currentTileSprites = getTile(currentX, currentY)
+    const currentPathType = currentTileSprites.find(sprite => pathTypes.includes(sprite.type))
+    const direction = pathDirections[currentPathType.type]
+    const nextX = currentX + direction.dx
+    const nextY = currentY + direction.dy
+    const nextTileSprites = getTile(nextX, nextY)
+    const isRoadTile = nextTileSprites.some(sprite => pathTypes.includes(sprite.type))
+    if (isRoadTile) {
+      monster.x = nextX
+      monster.y = nextY
+    } else {
+      monster.remove()
+    }
+  });
+}
 
 onInput("a", () => {
   getFirst(select).x -= 1
@@ -566,69 +611,16 @@ onInput("w", () => {
 onInput("s", () => {
   getFirst(select).y += 1
 })
-
 onInput("i", () => {
-  const spriteType = monsterHealth3
-  const specificSprite = getTile(getFirst(select).x, getFirst(select).y).find(sprite => sprite.type === spriteType)
-  if (specificSprite) {
-    specificSprite.remove()
-    moneyCount = moneyCount + 1
-  }
-  else {
-    if (moneyCount >= 2) {
-      addSprite(getFirst(select).x, getFirst(select).y, spriteType)
-      moneyCount = moneyCount - 2
-    }
-  }
+  interactTank()
 })
 
-onInput("k", () => {
+onInput("j", () => {
   moveMonsters()
 })
-
-function spawnMonster(x,y) {
-  const selectedTile = getTile(getFirst(select).x, getFirst(select).y)
-  if (!selectedTile.some(sprite => sprite.type === monsterHealth3 || sprite.type === monsterHealth2 || sprite.type === monsterHealth1 || sprite.type === monsterHealth0)) {
-    addSprite(getFirst(select).x, getFirst(select).y, monsterHealth3)
-  }
-}
-
-function moveMonsters() {
-  const monsters = getAll(monsterHealth3).concat(getAll(monsterHealth2), getAll(monsterHealth1), getAll(monsterHealth0));
-
-  monsters.forEach(monster => {
-    const currentX = monster.x;
-    const currentY = monster.y;
-
-    const currentTileSprites = getTile(currentX, currentY);
-    const currentPathType = currentTileSprites.find(sprite => pathTypes.includes(sprite.type));
-
-    if (currentPathType) {
-      const direction = pathDirections[currentPathType.type];
-
-      if (direction) {
-        const nextX = currentX + direction.dx;
-        const nextY = currentY + direction.dy;
-
-        const nextTileSprites = getTile(nextX, nextY);
-        const isRoadTile = nextTileSprites.some(sprite => pathTypes.includes(sprite.type));
-        if (isRoadTile) {
-          monster.x = nextX;
-          monster.y = nextY;
-        } else {
-          monster.remove()
-        }
-      }
-    } else {
-      monster.remove()
-    }
-  });
-}
-
-
-afterInput(() => {
+onInput("l", () => {
+  spawnMonster(getFirst(select).x,getFirst(select).y)
 })
-
 
 setInterval(() => {
   if (gameTickCounter < 1400) {
@@ -644,10 +636,9 @@ setInterval(() => {
     y: 1,
     color: color`2`
   })
-  addText("3", { 
+  addText(lifeCount.toString(), { 
     x: 19,
     y: 1,
     color: color`2`
   })
 }, TICKMS)
-

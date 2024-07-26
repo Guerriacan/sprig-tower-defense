@@ -22,31 +22,26 @@ const bullet = "b"
 const explosion = "e"
 const smoke = "s"
 
-const health3bar = "z"
-const health2bar = "y"
-const health1bar = "x"
-const health0bar = "w"
-
-const monsterLeft = "m"
-const monsterRight = "n"
+const monsterHealth3 = "z"
+const monsterHealth2 = "y"
+const monsterHealth1 = "x"
+const monsterHealth0 = "w"
 
 const floor = "0"
-const pathHorizontal = "1"
-const pathVertical = "2"
-const pathDownLeft = "3"
-const pathDownRight = "4"
-const pathUpLeft = "5"
-const pathUpRight = "6"
+const pathHorizontal1 = "1"
+const pathHorizontal2 = "2"
+const pathVertical = "3"
+const pathDownLeft = "4"
+const pathDownRight = "5"
+const pathUpLeft = "6"
+const pathUpRight = "7"
 
-const pathTypes = [pathHorizontal, pathVertical, pathDownLeft, pathDownRight, pathUpLeft, pathUpRight]
-const healthBarTypes = [health0bar, health1bar, health2bar, health3bar]
-const monsterTypes = [monsterLeft, monsterRight]
+const pathTypes = [pathHorizontal1, pathHorizontal2, pathVertical, pathDownLeft, pathDownRight, pathUpLeft, pathUpRight]
 
 const TICKMS = 100;
+let gameTickCounter = 0
 
 let moneyCount = 9
-let gameTickCounter = 0
-let monsterSpeed = 500
 
 setLegend(
   [select, bitmap`
@@ -187,110 +182,77 @@ setLegend(
 01111121101100..
 .01111110.00....
 ..000000........`],
-
-  [health3bar, bitmap`
+  
+  [monsterHealth3, bitmap`
 ................
 ................
 ...0000000000...
 ..044444444440..
 ...0000000000...
 ................
-................
-................
-................
-................
-................
-................
-................
-................
-................
+......000.......
+.....0FFF00.....
+....0FFFFFD0....
+...0FFFFFFDD0...
+...0FF3F3DDD0...
+..0FFF3F3DDDD0..
+..0FFFFFDDDDD0..
+..00FFDDDDDD00..
+...0000000000...
 ................`],
-  [health2bar, bitmap`
+  [monsterHealth2, bitmap`
 ................
 ................
 ...0000000000...
-..033334444440..
+..033344444440..
 ...0000000000...
 ................
-................
-................
-................
-................
-................
-................
-................
-................
-................
+......000.......
+.....0FFF00.....
+....0FFFFFD0....
+...0FFFFFFDD0...
+...0FF3F3DDD0...
+..0FFF3F3DDDD0..
+..0FFFFFDDDDD0..
+..00FFDDDDDD00..
+...0000000000...
 ................`],
-  [health1bar, bitmap`
+  [monsterHealth1, bitmap`
 ................
 ................
 ...0000000000...
-..033333344440..
+..033333334440..
 ...0000000000...
 ................
-................
-................
-................
-................
-................
-................
-................
-................
-................
+......000.......
+.....0FFF00.....
+....0FFFFFD0....
+...0FFFFFFDD0...
+...0FF3F3DDD0...
+..0FFF3F3DDDD0..
+..0FFFFFDDDDD0..
+..00FFDDDDDD00..
+...0000000000...
 ................`],
-  [health0bar, bitmap`
+  [monsterHealth0, bitmap`
 ................
 ................
 ...0000000000...
 ..033333333330..
 ...0000000000...
 ................
-................
-................
-................
-................
-................
-................
-................
-................
-................
-................`],
-
-  [monsterLeft, bitmap`
-................
-................
-................
-................
-................
-................
 ......000.......
 .....0FFF00.....
 ....0FFFFFD0....
 ...0FFFFFFDD0...
-...0F3F3FDDD0...
-..0FF3F3FDDDD0..
+...0FF3F3DDD0...
+..0FFF3F3DDDD0..
 ..0FFFFFDDDDD0..
 ..00FFDDDDDD00..
 ...0000000000...
 ................`],
-  [monsterRight, bitmap`
-................
-................
-................
-................
-................
-................
-.......000......
-.....00FFF0.....
-....0DFFFFF0....
-...0DDFFFFFF0...
-...0DDDF3F3F0...
-..0DDDDF3F3FF0..
-..0DDDDDFFFFF0..
-..00DDDDDDFF00..
-...0000000000...
-................`],
+
+
   
   [flag, bitmap`
 1LLLLLLLLLLLLLL1
@@ -344,7 +306,7 @@ LLLLLLLLLLLLLLLL
 1111111L1111111L
 1111111L1111111L
 1111111L1111111L`],
-  [pathHorizontal, bitmap`
+  [pathHorizontal1, bitmap`
 1111111111111111
 LLLLLLLLLLLLLLLL
 0000000000000000
@@ -352,8 +314,25 @@ LLLLLLLLLLLLLLLL
 0000000000000000
 0000000000000000
 0000000000000000
-6600006666000066
-6600006666000066
+6666000066660000
+66660L0066660L0L
+0000000000000000
+0000000000000000
+0000000000000000
+0000000000000000
+0000000000000000
+LLLLLLLLLLLLLLLL
+1111111111111111`],
+  [pathHorizontal2, bitmap`
+1111111111111111
+LLLLLLLLLLLLLLLL
+0000000000000000
+0000000000000000
+0000000000000000
+0000000000000000
+0000000000000000
+6006660066600006
+6006660066600006
 0000000000000000
 0000000000000000
 0000000000000000
@@ -386,15 +365,15 @@ LLLLLLLLLLLLLLL1
 00000000000000L1
 00000000000000L1
 00000000000000L1
-60000666600000L1
-60000666600000L1
+00066666600000L1
+00066666600000L1
 00000006600000L1
 00000006600000L1
-00000000000000L1
-00000000000000L1
+00000006600000L1
+00000006600000L1
 00000000000000L1
 LL000000000000L1
-1L000006600000L1`],
+1L000000000000L1`],
   [pathDownRight, bitmap`
 1111111111111111
 1LLLLLLLLLLLLLLL
@@ -448,31 +427,19 @@ LLLLLLLLLLLLLLL1
 1111111111111111`]
 )
 
-setSolids([])
-
 let level = 0
-const levels = [
-  map`
+const levels = [map`
 zyxwtes.ch
-...mbna...
-.f1111113.
-.mm..m..2.
+....b.a...
+.f2121214.
+........3.
 .41111115.
-.2.nnnnn..
+.2........
 .6111111p.
-.mmmmmmm..`
-]
+..........`]
 
 setBackground("0")
 setMap(levels[level])
-
-setPushables({
-  [select]: []
-})
-
-
-
-
 
 onInput("a", () => {
   getFirst(select).x -= 1
@@ -488,7 +455,7 @@ onInput("s", () => {
 })
 
 onInput("i", () => {
-  const spriteType = monsterLeft
+  const spriteType = monsterHealth3
   const specificSprite = getTile(getFirst(select).x, getFirst(select).y).find(sprite => sprite.type === spriteType)
   if (specificSprite) {
     specificSprite.remove()
@@ -502,7 +469,52 @@ onInput("i", () => {
   }
 })
 
+onInput("k", () => {
+  moveMonsters()
+})
 
+function spawnMonster(x,y) {
+  const selectedTile = getTile(getFirst(select).x, getFirst(select).y)
+  if (!selectedTile.some(sprite => sprite.type === monsterHealth3 || sprite.type === monsterHealth2 || sprite.type === monsterHealth1 || sprite.type === monsterHealth0)) {
+    addSprite(getFirst(select).x, getFirst(select).y, monsterHealth3)
+  }
+}
+
+function moveMonsters() {
+  const monsters = getAll(monsterHealth3).concat(getAll(monsterHealth2), getAll(monsterHealth1), getAll(monsterHealth0))
+  
+  monsters.forEach(monster => {
+    const currentX = monster.x
+    const currentY = monster.y
+    
+    // Define the relative positions of adjacent tiles (up, down, left, right)
+    const neighbors = [
+      { dx: 0, dy: -1 }, // Up
+      { dx: 0, dy: 1 },  // Down
+      { dx: -1, dy: 0 }, // Left
+      { dx: 1, dy: 0 }   // Right
+    ]
+    
+    // Iterate over the adjacent tiles
+    for (const neighbor of neighbors) {
+      const nextX = currentX + neighbor.dx
+      const nextY = currentY + neighbor.dy
+      
+      // Get the sprites on the next tile
+      const nextTileSprites = getTile(nextX, nextY)
+      
+      // Check if the next tile contains a road type
+      const isRoadTile = nextTileSprites.some(sprite => pathTypes.includes(sprite.type))
+      
+      // Move the monster if the next tile is a road tile
+      if (isRoadTile) {
+        monster.x = nextX
+        monster.y = nextY
+        break // Exit the loop after finding the first road tile to move to
+      }
+    }
+  })
+}
 
 
 afterInput(() => {
@@ -528,18 +540,5 @@ setInterval(() => {
     y: 1,
     color: color`2`
   })
-
-  let healthBarSprites = []
-  healthBarTypes.forEach(type => {
-    healthBarSprites = healthBarSprites.concat(getAll(type))
-  })
-  healthBarSprites.forEach(sprite => sprite.remove())
-
-  let monsterSprites = []
-  monsterTypes.forEach(type => {
-    monsterSprites = monsterSprites.concat(getAll(type))
-  })
-  monsterSprites.forEach(sprite => addSprite(sprite.x, sprite.y, health3bar));
-  
 }, TICKMS)
 

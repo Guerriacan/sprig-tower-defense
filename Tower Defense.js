@@ -46,34 +46,37 @@ const pathRightToDown = "z"
 
 const pathTypes = [
   flag, portal,
-  pathRightToLeft,pathLeftToRight,pathUpToDown,pathDownToUp,
+  pathRightToLeft, pathLeftToRight, pathUpToDown, pathDownToUp,
   pathUpToLeft, pathUpToRight, pathDownToLeft, pathDownToRight,
   pathLeftToUp, pathLeftToDown, pathRightToUp, pathRightToDown
-                  ]
+]
 const monsterTypes = [
   monsterHealth0, monsterHealth1, monsterHealth2, monsterHealth3
 ]
 
 var pathDirections = {}
 pathDirections[pathRightToLeft] = { dx: -1, dy: 0, ex: 1, ey: 0 }
-pathDirections[pathLeftToRight] = { dx: 1, dy: 0, ex: -1, ey: 0  },
-pathDirections[pathUpToDown] = { dx: 0, dy: 1, ex: 0, ey: -1  },
-pathDirections[pathDownToUp] = { dx: 0, dy: -1, ex: 0, ey: 1  },
-pathDirections[pathUpToLeft] = { dx: -1, dy: 0, ex: 0, ey: -1  },
-pathDirections[pathUpToRight] = { dx: 1, dy: 0, ex: 1, ey: -1  },
-pathDirections[pathDownToLeft] = { dx: -1, dy: 0, ex: 1, ey: 1  },
-pathDirections[pathDownToRight] = { dx: 1, dy: 0, ex: 1, ey: 1  },
-pathDirections[pathLeftToUp] = { dx: 0, dy: -1, ex: -1, ey: 0  },
-pathDirections[pathLeftToDown] = { dx: 0, dy: 1, ex: -1, ey: 0  },
-pathDirections[pathRightToUp] = { dx: 0, dy: -1, ex: 1, ey: 0  },
-pathDirections[pathRightToDown] = { dx: 0, dy: 1, ex: 1, ey: 0  }
+pathDirections[pathLeftToRight] = { dx: 1, dy: 0, ex: -1, ey: 0 },
+  pathDirections[pathUpToDown] = { dx: 0, dy: 1, ex: 0, ey: -1 },
+  pathDirections[pathDownToUp] = { dx: 0, dy: -1, ex: 0, ey: 1 },
+  pathDirections[pathUpToLeft] = { dx: -1, dy: 0, ex: 0, ey: -1 },
+  pathDirections[pathUpToRight] = { dx: 1, dy: 0, ex: 1, ey: -1 },
+  pathDirections[pathDownToLeft] = { dx: -1, dy: 0, ex: 1, ey: 1 },
+  pathDirections[pathDownToRight] = { dx: 1, dy: 0, ex: 1, ey: 1 },
+  pathDirections[pathLeftToUp] = { dx: 0, dy: -1, ex: -1, ey: 0 },
+  pathDirections[pathLeftToDown] = { dx: 0, dy: 1, ex: -1, ey: 0 },
+  pathDirections[pathRightToUp] = { dx: 0, dy: -1, ex: 1, ey: 0 },
+  pathDirections[pathRightToDown] = { dx: 0, dy: 1, ex: 1, ey: 0 }
 
-const TICKMS = 100;
+const TICKMS = 100
 var gameTickCounter = 0
+
 
 var lifeCount = 3
 var moneyCount = 4
-var monsterSpawnRate = 100
+var bulletSpeed = 700
+var monsterSpeed = 800
+var monsterSpawnRate = 900
 
 setLegend(
   [select, bitmap`
@@ -127,7 +130,7 @@ setLegend(
 ......0C90......
 .......00.......
 ................`],
-  
+
   [greyHeart, bitmap`
 ................
 ................
@@ -179,7 +182,7 @@ setLegend(
 .0CCC6CC0.......
 ..00CCC0........
 ....000.........`],
-  
+
   [explosion, bitmap`
 ...00000...0000.
 ..0333330.03330.
@@ -214,7 +217,7 @@ setLegend(
 01111121101100..
 .01111110.00....
 ..000000........`],
-  
+
   [monsterHealth3, bitmap`
 ................
 ................
@@ -404,7 +407,7 @@ LLLLLLLLLLLLLLLL
 1L000000000000L1
 1L000006600000L1
 1L000006600000L1`],
-  
+
   [pathUpToLeft, bitmap`
 1L000006600000L1
 LL000000000000L1
@@ -473,7 +476,7 @@ LL000000000000L1
 1L00000000000000
 1L000000000000LL
 1L000006600000L1`],
-  
+
   [pathLeftToUp, bitmap`
 1L000006600000L1
 LL000000000000L1
@@ -550,8 +553,8 @@ const levels = [map`
 f.zoooou..
 q.q.a..r..
 q.qvpx.r..
-..tw.tpw..
-.....vpp..
+e.tw.tpw..
+.....vppe.
 ..pp.yf...
 ..........`]
 
@@ -559,12 +562,11 @@ setBackground("n")
 setMap(levels[level])
 
 function interactTank() {
-    const specificSprite = getTile(getFirst(select).x, getFirst(select).y).find(sprite => sprite.type === tank)
+  const specificSprite = getTile(getFirst(select).x, getFirst(select).y).find(sprite => sprite.type === tank)
   if (specificSprite) {
     specificSprite.remove()
     moneyCount = moneyCount + 1
-  }
-  else {
+  } else {
     if (moneyCount >= 2) {
       addSprite(getFirst(select).x, getFirst(select).y, tank)
       moneyCount = moneyCount - 2
@@ -592,7 +594,7 @@ function moveBullets() {
         monsterHit.remove()
         addSprite(bullet.x, bullet.y, smoke)
       } else {
-      monsterHit.type = monsterTypes[monsterTypes.indexOf(monsterHit.type) - 1]
+        monsterHit.type = monsterTypes[monsterTypes.indexOf(monsterHit.type) - 1]
       }
       bullet.remove()
     }
@@ -600,7 +602,7 @@ function moveBullets() {
 }
 
 
-function spawnMonster(x,y) {
+function spawnMonster(x, y) {
   if (getTile(x, y).find(sprite => pathTypes.includes(sprite.type))) {
     if (!getTile(x, y).some(sprite => monsterTypes.includes(sprite.type))) {
       addSprite(x, y, monsterTypes[Math.floor(Math.random() * monsterTypes.length)])
@@ -616,11 +618,21 @@ function moveMonsters() {
     const currentTileSprites = getTile(currentX, currentY)
     const currentPathType = currentTileSprites.find(sprite => pathTypes.includes(sprite.type))
     const direction = pathDirections[currentPathType.type]
-    if (currentPathType.type === portal) {
-      for (const [key, value] of Object.entries(pathDirection)) {
-        
+    if (currentPathType.type === flag) {
+      monster.remove()
+      addSprite(currentX, currentY, explosion)
+      lifeCount--
+    } else if (currentPathType.type === portal) {
+      for (const [key, value] of Object.entries(pathDirections)) {
+        var targetTileX = currentX - value.ex
+        var targetTileY = currentY - value.ey
+        getTile(targetTileX, targetTileY).forEach(sprite => {
+          if (sprite.type === key) {
+            monster.x = targetTileX
+            monster.y = targetTileY
+          }
+        })
       }
-      
     } else {
       const nextX = currentX + direction.dx
       const nextY = currentY + direction.dy
@@ -650,39 +662,41 @@ onInput("s", () => {
 })
 
 onInput("i", () => {
-  moveMonsters()
+  interactTank()
 })
 onInput("k", () => {
-  moveBullets()
-})
-onInput("j", () => {
   spawnBullet()
 })
 onInput("l", () => {
-  spawnMonster(getFirst(select).x,getFirst(select).y)
+  getAll(portal).forEach(portal => {
+    spawnMonster(portal.x, portal.y)
+  })
 })
 
 setInterval(() => {
-  if (gameTickCounter < 1400) {
+  if (gameTickCounter < 1900) {
     gameTickCounter += TICKMS
-  }
-  else {
+  } else {
     gameTickCounter = 0
   }
-
-  getAll(portal).forEach(portal => {
-    if (gameTickCounter % monsterSpawnRate == 0) {
-      spawnMonster(portal.x,portal.y)
-    }
-  })
+  if (gameTickCounter % monsterSpeed == 0) {
+    getAll(explosion).forEach(explosion => { explosion.remove() });
+    moveMonsters()
+    intervalCounter = 0;
+  }
+  if (gameTickCounter % bulletSpeed == 0) {
+    spawnBullet()
+  }
+  getAll(smoke).forEach(smoke => { smoke.remove() });
+  moveBullets()
 
   clearText()
-  addText(moneyCount.toString(), { 
+  addText(moneyCount.toString(), {
     x: 17,
     y: 1,
     color: color`2`
   })
-  addText(lifeCount.toString(), { 
+  addText(lifeCount.toString(), {
     x: 19,
     y: 1,
     color: color`2`

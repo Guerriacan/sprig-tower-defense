@@ -8,36 +8,41 @@ https://sprig.hackclub.com/gallery/getting_started
 @addedOn: 2024-00-00
 */
 
-const select = "a"
+const gui = "0"
+const guiTopLeft = "4"
+const guiTopRight = "5"
+const guiTop = "6"
+const guiBottomLeft = "7"
+const guiBottomRight = "8"
+const guiBottom = "9"
+const guiLeft = "l"
+const guiRight = "k"
 
+const select = "a"
 const greyHeart = "b"
 const heart = "c"
 const money = "d"
 
-const flag = "e"
-const portal = "f"
 const tank = "g"
 const bullet = "h"
 
 const explosion = "i"
 const smoke = "j"
-
 const monsterHealth3 = "3"
 const monsterHealth2 = "2"
 const monsterHealth1 = "1"
 
+const flag = "e"
+const portal = "f"
 const floor = "n"
-
 const pathRightToLeft = "o"
 const pathLeftToRight = "p"
 const pathUpToDown = "q"
 const pathDownToUp = "r"
-
 const pathUpToLeft = "s"
 const pathUpToRight = "t"
 const pathDownToLeft = "u"
 const pathDownToRight = "v"
-
 const pathLeftToUp = "w"
 const pathLeftToDown = "x"
 const pathRightToUp = "y"
@@ -49,6 +54,7 @@ const pathTypes = [
   pathUpToLeft, pathUpToRight, pathDownToLeft, pathDownToRight,
   pathLeftToUp, pathLeftToDown, pathRightToUp, pathRightToDown
 ]
+
 const monsterTypes = [
   monsterHealth1, monsterHealth2, monsterHealth3
 ]
@@ -56,16 +62,16 @@ const monsterTypes = [
 var pathDirections = {}
 pathDirections[pathRightToLeft] = { dx: -1, dy: 0, ex: 1, ey: 0 }
 pathDirections[pathLeftToRight] = { dx: 1, dy: 0, ex: -1, ey: 0 },
-  pathDirections[pathUpToDown] = { dx: 0, dy: 1, ex: 0, ey: -1 },
-  pathDirections[pathDownToUp] = { dx: 0, dy: -1, ex: 0, ey: 1 },
-  pathDirections[pathUpToLeft] = { dx: -1, dy: 0, ex: 0, ey: -1 },
-  pathDirections[pathUpToRight] = { dx: 1, dy: 0, ex: 1, ey: -1 },
-  pathDirections[pathDownToLeft] = { dx: -1, dy: 0, ex: 1, ey: 1 },
-  pathDirections[pathDownToRight] = { dx: 1, dy: 0, ex: 1, ey: 1 },
-  pathDirections[pathLeftToUp] = { dx: 0, dy: -1, ex: -1, ey: 0 },
-  pathDirections[pathLeftToDown] = { dx: 0, dy: 1, ex: -1, ey: 0 },
-  pathDirections[pathRightToUp] = { dx: 0, dy: -1, ex: 1, ey: 0 },
-  pathDirections[pathRightToDown] = { dx: 0, dy: 1, ex: 1, ey: 0 }
+pathDirections[pathUpToDown] = { dx: 0, dy: 1, ex: 0, ey: -1 },
+pathDirections[pathDownToUp] = { dx: 0, dy: -1, ex: 0, ey: 1 },
+pathDirections[pathUpToLeft] = { dx: -1, dy: 0, ex: 0, ey: -1 },
+pathDirections[pathUpToRight] = { dx: 1, dy: 0, ex: 1, ey: -1 },
+pathDirections[pathDownToLeft] = { dx: -1, dy: 0, ex: 1, ey: 1 },
+pathDirections[pathDownToRight] = { dx: 1, dy: 0, ex: 1, ey: 1 },
+pathDirections[pathLeftToUp] = { dx: 0, dy: -1, ex: -1, ey: 0 },
+pathDirections[pathLeftToDown] = { dx: 0, dy: 1, ex: -1, ey: 0 },
+pathDirections[pathRightToUp] = { dx: 0, dy: -1, ex: 1, ey: 0 },
+pathDirections[pathRightToDown] = { dx: 0, dy: 1, ex: 1, ey: 0 }
 
 const TICKMS = 50
 var gameTickCounter = 0
@@ -81,8 +87,162 @@ var monsterSpawnRate = 2000
 var moneySpawnRate = 5000
 
 setLegend(
-  
-  
+  [gui, bitmap`
+CCCCCCCCCCCCCCCC
+CCCCCCCCCCCCCCCC
+CCCCCCCCCCCCCCCC
+CCCCCCCCCCCCCCCC
+CCCCCCCCCCCCCCCC
+CCCCCCCCCCCCCCCC
+CCCCCCCCCCCCCCCC
+CCCCCCCCCCCCCCCC
+CCCCCCCCCCCCCCCC
+CCCCCCCCCCCCCCCC
+CCCCCCCCCCCCCCCC
+CCCCCCCCCCCCCCCC
+CCCCCCCCCCCCCCCC
+CCCCCCCCCCCCCCCC
+CCCCCCCCCCCCCCCC
+CCCCCCCCCCCCCCCC`],
+  [guiTopLeft, bitmap`
+....000000000000
+..00CCCCCCCCCCCC
+.0CCCCCCCCCCCCCC
+.0CCCCCCCCCCCCCC
+0CCCCCCCCCCCCCCC
+0CCCCCCCCCCCCCCC
+0CCCCCCCCCCCCCCC
+0CCCCCCCCCCCCCCC
+0CCCCCCCCCCCCCCC
+0CCCCCCCCCCCCCCC
+0CCCCCCCCCCCCCCC
+0CCCCCCCCCCCCCCC
+0CCCCCCCCCCCCCCC
+0CCCCCCCCCCCCCCC
+0CCCCCCCCCCCCCCC
+0CCCCCCCCCCCCCCC`],
+  [guiTopRight, bitmap`
+000000000000....
+CCCCCCCCCCCC00..
+CCCCCCCCCCCCCC0.
+CCCCCCCCCCCCCC0.
+CCCCCCCCCCCCCCC0
+CCCCCCCCCCCCCCC0
+CCCCCCCCCCCCCCC0
+CCCCCCCCCCCCCCC0
+CCCCCCCCCCCCCCC0
+CCCCCCCCCCCCCCC0
+CCCCCCCCCCCCCCC0
+CCCCCCCCCCCCCCC0
+CCCCCCCCCCCCCCC0
+CCCCCCCCCCCCCCC0
+CCCCCCCCCCCCCCC0
+CCCCCCCCCCCCCCC0`],
+
+  [guiTop, bitmap`
+0000000000000000
+CCCCCCCCCCCCCCCC
+CCCCCCCCCCCCCCCC
+CCCCCCCCCCCCCCCC
+CCCCCCCCCCCCCCCC
+CCCCCCCCCCCCCCCC
+CCCCCCCCCCCCCCCC
+CCCCCCCCCCCCCCCC
+CCCCCCCCCCCCCCCC
+CCCCCCCCCCCCCCCC
+CCCCCCCCCCCCCCCC
+CCCCCCCCCCCCCCCC
+CCCCCCCCCCCCCCCC
+CCCCCCCCCCCCCCCC
+CCCCCCCCCCCCCCCC
+CCCCCCCCCCCCCCCC`],
+  [guiBottom, bitmap`
+CCCCCCCCCCCCCCCC
+CCCCCCCCCCCCCCCC
+CCCCCCCCCCCCCCCC
+CCCCCCCCCCCCCCCC
+CCCCCCCCCCCCCCCC
+CCCCCCCCCCCCCCCC
+CCCCCCCCCCCCCCCC
+CCCCCCCCCCCCCCCC
+CCCCCCCCCCCCCCCC
+CCCCCCCCCCCCCCCC
+CCCCCCCCCCCCCCCC
+CCCCCCCCCCCCCCCC
+CCCCCCCCCCCCCCCC
+CCCCCCCCCCCCCCCC
+CCCCCCCCCCCCCCCC
+0000000000000000`],
+
+  [guiBottomLeft, bitmap`
+0CCCCCCCCCCCCCCC
+0CCCCCCCCCCCCCCC
+0CCCCCCCCCCCCCCC
+0CCCCCCCCCCCCCCC
+0CCCCCCCCCCCCCCC
+0CCCCCCCCCCCCCCC
+0CCCCCCCCCCCCCCC
+0CCCCCCCCCCCCCCC
+0CCCCCCCCCCCCCCC
+0CCCCCCCCCCCCCCC
+0CCCCCCCCCCCCCCC
+0CCCCCCCCCCCCCCC
+.0CCCCCCCCCCCCCC
+.0CCCCCCCCCCCCCC
+..00CCCCCCCCCCCC
+....000000000000`],
+  [guiBottomRight, bitmap`
+CCCCCCCCCCCCCCC0
+CCCCCCCCCCCCCCC0
+CCCCCCCCCCCCCCC0
+CCCCCCCCCCCCCCC0
+CCCCCCCCCCCCCCC0
+CCCCCCCCCCCCCCC0
+CCCCCCCCCCCCCCC0
+CCCCCCCCCCCCCCC0
+CCCCCCCCCCCCCCC0
+CCCCCCCCCCCCCCC0
+CCCCCCCCCCCCCCC0
+CCCCCCCCCCCCCCC0
+CCCCCCCCCCCCCC0.
+CCCCCCCCCCCCCC0.
+CCCCCCCCCCCC00..
+000000000000....`],
+  [guiLeft, bitmap`
+0CCCCCCCCCCCCCCC
+0CCCCCCCCCCCCCCC
+0CCCCCCCCCCCCCCC
+0CCCCCCCCCCCCCCC
+0CCCCCCCCCCCCCCC
+0CCCCCCCCCCCCCCC
+0CCCCCCCCCCCCCCC
+0CCCCCCCCCCCCCCC
+0CCCCCCCCCCCCCCC
+0CCCCCCCCCCCCCCC
+0CCCCCCCCCCCCCCC
+0CCCCCCCCCCCCCCC
+0CCCCCCCCCCCCCCC
+0CCCCCCCCCCCCCCC
+0CCCCCCCCCCCCCCC
+0CCCCCCCCCCCCCCC`],
+  [guiRight, bitmap`
+CCCCCCCCCCCCCCC0
+CCCCCCCCCCCCCCC0
+CCCCCCCCCCCCCCC0
+CCCCCCCCCCCCCCC0
+CCCCCCCCCCCCCCC0
+CCCCCCCCCCCCCCC0
+CCCCCCCCCCCCCCC0
+CCCCCCCCCCCCCCC0
+CCCCCCCCCCCCCCC0
+CCCCCCCCCCCCCCC0
+CCCCCCCCCCCCCCC0
+CCCCCCCCCCCCCCC0
+CCCCCCCCCCCCCCC0
+CCCCCCCCCCCCCCC0
+CCCCCCCCCCCCCCC0
+CCCCCCCCCCCCCCC0`],
+
   [select, bitmap`
 2222........2222
 2..............2
@@ -100,41 +260,6 @@ setLegend(
 2..............2
 2..............2
 2222........2222`],
-  [tank, bitmap`
-..00000..00000..
-..0FFF0000FFF0..
-..0FF444444FF0..
-..0LL44DD44LL0..
-..0FF4DDDD4FF0..
-..0FF4DDDD4FF0..
-..0LL4DDDD4LL0..
-..0FF4DDDD4FF0..
-..0FF4DDDD4FF0..
-..0LL44DD44LL0..
-..0FF44DD44FF0..
-..0FFF0DD0FFF0..
-..00000DD00000..
-.....00DD00.....
-.....0DDDD0.....
-.....000000.....`],
-  [bullet, bitmap`
-................
-.....000000.....
-.....099960.....
-......0960......
-.....099690.....
-.....096690.....
-.....096690.....
-.....066990.....
-.....000000.....
-.....09CC90.....
-.....0CCC90.....
-.....0CC990.....
-......0C90......
-......0C90......
-.......00.......
-................`],
-
   [greyHeart, bitmap`
 ................
 ................
@@ -187,6 +312,40 @@ setLegend(
 ..00CCC0........
 ....000.........`],
 
+  [tank, bitmap`
+  ..00000..00000..
+  ..0FFF0000FFF0..
+  ..0FF444444FF0..
+  ..0LL44DD44LL0..
+  ..0FF4DDDD4FF0..
+  ..0FF4DDDD4FF0..
+  ..0LL4DDDD4LL0..
+  ..0FF4DDDD4FF0..
+  ..0FF4DDDD4FF0..
+  ..0LL44DD44LL0..
+  ..0FF44DD44FF0..
+  ..0FFF0DD0FFF0..
+  ..00000DD00000..
+  .....00DD00.....
+  .....0DDDD0.....
+  .....000000.....`],
+  [bullet, bitmap`
+  ................
+  .....000000.....
+  .....099960.....
+  ......0960......
+  .....099690.....
+  .....096690.....
+  .....096690.....
+  .....066990.....
+  .....000000.....
+  .....09CC90.....
+  .....0CCC90.....
+  .....0CC990.....
+  ......0C90......
+  ......0C90......
+  .......00.......
+  ................`],
   [explosion, bitmap`
 ...00000...0000.
 ..0333330.03330.
@@ -221,7 +380,6 @@ setLegend(
 01111121101100..
 .01111110.00....
 ..000000........`],
-
   [monsterHealth3, bitmap`
 ................
 ................
@@ -308,7 +466,6 @@ LH0HH8888H88H00L
 L0H00HHHHH800H0L
 LL00HH008800H0LL
 1LLLLLLLLLLLLLL1`],
-
   [floor, bitmap`
 LLLLLLLLLLLLLLLL
 111L1111111L1111
@@ -394,7 +551,6 @@ LLLLLLLLLLLLLLLL
 1L000000000000L1
 1L000006600000L1
 1L000006600000L1`],
-
   [pathUpToLeft, bitmap`
 1L000006600000L1
 LL000000000000L1
@@ -463,7 +619,6 @@ LL000000000000L1
 1L00000000000000
 1L000000000000LL
 1L000006600000L1`],
-
   [pathLeftToUp, bitmap`
 1L000006600000L1
 LL000000000000L1
@@ -534,8 +689,10 @@ LL000000000000L1
 1L000006600000L1`],
 )
 
-let level = 0
-const levels = [map`
+setBackground("n")
+
+const levels = [
+  map`
 .......adc
 ..........
 .eoooooou.
@@ -543,9 +700,36 @@ const levels = [map`
 .vppppppw.
 .r........
 .yoooooof.
-..........`]
-
-setBackground("n")
+..........`,
+  map`
+.......adc
+..........
+.vpppx.ve.
+.r...q.r..
+.you.q.yu.
+...r.q..r.
+.fpw.tppw.
+..........`,
+  map`
+.......adc
+..........
+.zooooof..
+.q........
+.q..eoou..
+.q.....r..
+.tpppppw..
+..........`,
+  map`
+.......adc
+..........
+.f..zooou.
+.q..q...r.
+.q..e...r.
+.q..r...r.
+.tppw...f.
+..........`
+]
+let level = Math.floor(Math.random() * levels.length)
 setMap(levels[level])
 
 function interactTank() {
@@ -661,6 +845,9 @@ setInterval(() => {
   } else {
     gameTickCounter = 0
   }
+
+  clearText()
+
   if (gameStart) {
     if (gameTickCounter % monsterSpeed == 0) {
       getAll(explosion).forEach(explosion => { explosion.remove() });
@@ -674,29 +861,29 @@ setInterval(() => {
       getAll(smoke).forEach(smoke => { smoke.remove() });
       spawnBullet()
     }
-  
+
     if (gameTickCounter % moneySpawnRate == 0) {
       if (moneyCount < 10) {
         moneyCount++
       }
     }
+
+    addText(moneyCount.toString(), {
+      x: 17,
+      y: 1,
+      color: color`2`
+    })
+    addText(lifeCount.toString(), {
+      x: 19,
+      y: 1,
+      color: color`2`
+    })
   }
-  
+
   moveBullets()
 
   if (lifeCount <= 0) {
     gameStart = false
+    setMap(levels[0])
   }
-
-  clearText()
-  addText(moneyCount.toString(), {
-    x: 17,
-    y: 1,
-    color: color`2`
-  })
-  addText(lifeCount.toString(), {
-    x: 19,
-    y: 1,
-    color: color`2`
-  })
 }, TICKMS)

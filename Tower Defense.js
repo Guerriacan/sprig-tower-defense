@@ -45,6 +45,7 @@ const pathRightToUp = "y"
 const pathRightToDown = "z"
 
 const pathTypes = [
+  flag, portal,
   pathRightToLeft,pathLeftToRight,pathUpToDown,pathDownToUp,
   pathUpToLeft, pathUpToRight, pathDownToLeft, pathDownToRight,
   pathLeftToUp, pathLeftToDown, pathRightToUp, pathRightToDown
@@ -54,24 +55,25 @@ const monsterTypes = [
 ]
 
 var pathDirections = {}
-pathDirections[pathRightToLeft] = { dx: -1, dy: 0 }
-pathDirections[pathLeftToRight] = { dx: 1, dy: 0 },
-pathDirections[pathUpToDown] = { dx: 0, dy: 1 },
-pathDirections[pathDownToUp] = { dx: 0, dy: -1 },
-pathDirections[pathUpToLeft] = { dx: -1, dy: 0 },
-pathDirections[pathUpToRight] = { dx: 1, dy: 0 },
-pathDirections[pathDownToLeft] = { dx: -1, dy: 0 },
-pathDirections[pathDownToRight] = { dx: 1, dy: 0 },
-pathDirections[pathLeftToUp] = { dx: 0, dy: -1 },
-pathDirections[pathLeftToDown] = { dx: 0, dy: 1 },
-pathDirections[pathRightToUp] = { dx: 0, dy: -1 },
-pathDirections[pathRightToDown] = { dx: 0, dy: 1 }
+pathDirections[pathRightToLeft] = { dx: -1, dy: 0, ex: 1, ey: 0 }
+pathDirections[pathLeftToRight] = { dx: 1, dy: 0, ex: -1, ey: 0  },
+pathDirections[pathUpToDown] = { dx: 0, dy: 1, ex: 0, ey: -1  },
+pathDirections[pathDownToUp] = { dx: 0, dy: -1, ex: 0, ey: 1  },
+pathDirections[pathUpToLeft] = { dx: -1, dy: 0, ex: 0, ey: -1  },
+pathDirections[pathUpToRight] = { dx: 1, dy: 0, ex: 1, ey: -1  },
+pathDirections[pathDownToLeft] = { dx: -1, dy: 0, ex: 1, ey: 1  },
+pathDirections[pathDownToRight] = { dx: 1, dy: 0, ex: 1, ey: 1  },
+pathDirections[pathLeftToUp] = { dx: 0, dy: -1, ex: -1, ey: 0  },
+pathDirections[pathLeftToDown] = { dx: 0, dy: 1, ex: -1, ey: 0  },
+pathDirections[pathRightToUp] = { dx: 0, dy: -1, ex: 1, ey: 0  },
+pathDirections[pathRightToDown] = { dx: 0, dy: 1, ex: 1, ey: 0  }
 
 const TICKMS = 100;
 var gameTickCounter = 0
 
 var lifeCount = 3
 var moneyCount = 4
+var monsterSpawnRate = 100
 
 setLegend(
   [select, bitmap`
@@ -545,12 +547,12 @@ LL000000000000L1
 let level = 0
 const levels = [map`
 ........dc
-..zoooou..
-..q.a..r..
-..qvpx.r..
+f.zoooou..
+q.q.a..r..
+q.qvpx.r..
 ..tw.tpw..
-..........
-..pp......
+.....vpp..
+..pp.yf...
 ..........`]
 
 setBackground("n")
@@ -570,10 +572,38 @@ function interactTank() {
   }
 }
 
+
+function spawnBullet() {
+  getAll(tank).forEach(tankSprite => {
+    addSprite(tankSprite.x, tankSprite.y, bullet)
+  });
+}
+
+function moveBullets() {
+  getAll(bullet).forEach(bullet => {
+    if (bullet.y === height() - 1) {
+      bullet.remove()
+    }
+    bullet.y++
+    const monstersInTile = getTile(bullet.x, bullet.y).filter(sprite => monsterTypes.includes(sprite.type))
+    if (monstersInTile.length > 0) {
+      const monsterHit = monstersInTile[0]
+      if (monsterHit.type === monsterHealth0) {
+        monsterHit.remove()
+        addSprite(bullet.x, bullet.y, smoke)
+      } else {
+      monsterHit.type = monsterTypes[monsterTypes.indexOf(monsterHit.type) - 1]
+      }
+      bullet.remove()
+    }
+  })
+}
+
+
 function spawnMonster(x,y) {
   if (getTile(x, y).find(sprite => pathTypes.includes(sprite.type))) {
     if (!getTile(x, y).some(sprite => monsterTypes.includes(sprite.type))) {
-      addSprite(getFirst(select).x, getFirst(select).y, monsterTypes[Math.floor(Math.random() * monsterTypes.length)])
+      addSprite(x, y, monsterTypes[Math.floor(Math.random() * monsterTypes.length)])
     }
   }
 }
@@ -586,15 +616,22 @@ function moveMonsters() {
     const currentTileSprites = getTile(currentX, currentY)
     const currentPathType = currentTileSprites.find(sprite => pathTypes.includes(sprite.type))
     const direction = pathDirections[currentPathType.type]
-    const nextX = currentX + direction.dx
-    const nextY = currentY + direction.dy
-    const nextTileSprites = getTile(nextX, nextY)
-    const isRoadTile = nextTileSprites.some(sprite => pathTypes.includes(sprite.type))
-    if (isRoadTile) {
-      monster.x = nextX
-      monster.y = nextY
+    if (currentPathType.type === portal) {
+      for (const [key, value] of Object.entries(pathDirection)) {
+        
+      }
+      
     } else {
-      monster.remove()
+      const nextX = currentX + direction.dx
+      const nextY = currentY + direction.dy
+      const nextTileSprites = getTile(nextX, nextY)
+      const isRoadTile = nextTileSprites.some(sprite => pathTypes.includes(sprite.type))
+      if (isRoadTile) {
+        monster.x = nextX
+        monster.y = nextY
+      } else {
+        monster.remove()
+      }
     }
   });
 }
@@ -611,12 +648,15 @@ onInput("w", () => {
 onInput("s", () => {
   getFirst(select).y += 1
 })
-onInput("i", () => {
-  interactTank()
-})
 
-onInput("j", () => {
+onInput("i", () => {
   moveMonsters()
+})
+onInput("k", () => {
+  moveBullets()
+})
+onInput("j", () => {
+  spawnBullet()
 })
 onInput("l", () => {
   spawnMonster(getFirst(select).x,getFirst(select).y)
@@ -629,6 +669,12 @@ setInterval(() => {
   else {
     gameTickCounter = 0
   }
+
+  getAll(portal).forEach(portal => {
+    if (gameTickCounter % monsterSpawnRate == 0) {
+      spawnMonster(portal.x,portal.y)
+    }
+  })
 
   clearText()
   addText(moneyCount.toString(), { 

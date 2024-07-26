@@ -10,33 +10,59 @@ https://sprig.hackclub.com/gallery/getting_started
 
 const select = "a"
 
-const greyHeart = "l"
-const heart = "h"
-const money = "c"
+const greyHeart = "b"
+const heart = "c"
+const money = "d"
 
-const flag = "f"
-const portal = "p"
-const tank = "t"
-const bullet = "b"
+const flag = "e"
+const portal = "f"
+const tank = "g"
+const bullet = "h"
 
-const explosion = "e"
-const smoke = "s"
+const explosion = "i"
+const smoke = "j"
 
-const monsterHealth3 = "z"
-const monsterHealth2 = "y"
-const monsterHealth1 = "x"
-const monsterHealth0 = "w"
+const monsterHealth3 = "3"
+const monsterHealth2 = "2"
+const monsterHealth1 = "1"
+const monsterHealth0 = "0"
 
-const floor = "0"
-const pathHorizontal1 = "1"
-const pathHorizontal2 = "2"
-const pathVertical = "3"
-const pathDownLeft = "4"
-const pathDownRight = "5"
-const pathUpLeft = "6"
-const pathUpRight = "7"
+const floor = "n"
 
-const pathTypes = [pathHorizontal1, pathHorizontal2, pathVertical, pathDownLeft, pathDownRight, pathUpLeft, pathUpRight]
+const pathRightToLeft = "o"
+const pathLeftToRight = "p"
+const pathUpToDown = "q"
+const pathDownToUp = "r"
+
+const pathUpToLeft = "s"
+const pathUpToRight = "t"
+const pathDownToLeft = "u"
+const pathDownToRight = "v"
+
+const pathLeftToUp = "w"
+const pathLeftToDown = "x"
+const pathRightToUp = "y"
+const pathRightToDown = "z"
+
+const pathTypes = [
+  pathRightToLeft,pathLeftToRight,pathUpToDown,pathDownToUp,
+  pathUpToLeft, pathUpToRight, pathDownToLeft, pathDownToRight,
+  pathLeftToUp, pathLeftToDown, pathRightToUp, pathRightToDown
+                  ]
+const pathDirections = {
+    pathRightToLeft: { dx: -1, dy: 0 },
+    pathLeftToRight: { dx: 1, dy: 0 },
+    pathUpToDown: { dx: 0, dy: 1 },
+    pathDownToUp: { dx: 0, dy: -1 },
+    pathUpToLeft: { dx: -1, dy: 0 },
+    pathUpToRight: { dx: 1, dy: 0 },
+    pathDownToLeft: { dx: -1, dy: 0 },
+    pathDownToRight: { dx: 1, dy: 0 },
+    pathLeftToUp: { dx: 0, dy: -1 },
+    pathLeftToDown: { dx: 0, dy: 1 },
+    pathRightToUp: { dx: 0, dy: -1 },
+    pathRightToDown: { dx: 0, dy: 1 }
+  };
 
 const TICKMS = 100;
 let gameTickCounter = 0
@@ -252,7 +278,6 @@ setLegend(
 ...0000000000...
 ................`],
 
-
   
   [flag, bitmap`
 1LLLLLLLLLLLLLL1
@@ -306,41 +331,41 @@ LLLLLLLLLLLLLLLL
 1111111L1111111L
 1111111L1111111L
 1111111L1111111L`],
-  [pathHorizontal1, bitmap`
+  [pathRightToLeft, bitmap`
 1111111111111111
 LLLLLLLLLLLLLLLL
 0000000000000000
 0000000000000000
 0000000000000000
 0000000000000000
-0000000000000000
-6666000066660000
-66660L0066660L0L
-0000000000000000
+0000000600000000
+6600006666000066
+6600006666000066
+0000000600000000
 0000000000000000
 0000000000000000
 0000000000000000
 0000000000000000
 LLLLLLLLLLLLLLLL
 1111111111111111`],
-  [pathHorizontal2, bitmap`
+  [pathLeftToRight, bitmap`
 1111111111111111
 LLLLLLLLLLLLLLLL
 0000000000000000
 0000000000000000
 0000000000000000
 0000000000000000
-0000000000000000
-6006660066600006
-6006660066600006
-0000000000000000
+0000000060000000
+6600006666000066
+6600006666000066
+0000000060000000
 0000000000000000
 0000000000000000
 0000000000000000
 0000000000000000
 LLLLLLLLLLLLLLLL
 1111111111111111`],
-  [pathVertical, bitmap`
+  [pathUpToDown, bitmap`
 1L000006600000L1
 1L000006600000L1
 1L000000000000L1
@@ -349,6 +374,23 @@ LLLLLLLLLLLLLLLL
 1L000000000000L1
 1L000006600000L1
 1L000006600000L1
+1L000066660000L1
+1L000006600000L1
+1L000000000000L1
+1L000000000000L1
+1L000000000000L1
+1L000000000000L1
+1L000006600000L1
+1L000006600000L1`],
+  [pathDownToUp, bitmap`
+1L000006600000L1
+1L000006600000L1
+1L000000000000L1
+1L000000000000L1
+1L000000000000L1
+1L000000000000L1
+1L000006600000L1
+1L000066660000L1
 1L000006600000L1
 1L000006600000L1
 1L000000000000L1
@@ -357,47 +399,84 @@ LLLLLLLLLLLLLLLL
 1L000000000000L1
 1L000006600000L1
 1L000006600000L1`],
-  [pathDownLeft, bitmap`
+  
+  [pathUpToLeft, bitmap`
+1L000006600000L1
+LL000000000000L1
+00000000000000L1
+00000000000000L1
+00000000000000L1
+00000006600000L1
+00000606600000L1
+60006666600000L1
+60006666600000L1
+00000600000000L1
+00000000000000L1
+00000000000000L1
+00000000000000L1
+00000000000000L1
+LLLLLLLLLLLLLLL1
+1111111111111111`],
+  [pathUpToRight, bitmap`
+1L000006600000L1
+1L000000000000LL
+1L00000000000000
+1L00000000000000
+1L00000000000000
+1L00000660000000
+1L00000660600000
+1L00000666660006
+1L00000666660006
+1L00000000600000
+1L00000000000000
+1L00000000000000
+1L00000000000000
+1L00000000000000
+1LLLLLLLLLLLLLLL
+1111111111111111`],
+  [pathDownToLeft, bitmap`
 1111111111111111
 LLLLLLLLLLLLLLL1
 00000000000000L1
 00000000000000L1
 00000000000000L1
 00000000000000L1
+00000600000000L1
+60006666600000L1
+60006666600000L1
+00000606600000L1
+00000006600000L1
 00000000000000L1
-00066666600000L1
-00066666600000L1
-00000006600000L1
-00000006600000L1
-00000006600000L1
-00000006600000L1
+00000000000000L1
 00000000000000L1
 LL000000000000L1
-1L000000000000L1`],
-  [pathDownRight, bitmap`
+1L000006600000L1`],
+  [pathDownToRight, bitmap`
 1111111111111111
 1LLLLLLLLLLLLLLL
 1L00000000000000
 1L00000000000000
 1L00000000000000
 1L00000000000000
-1L00000000000000
-1L00000666600006
-1L00000666600006
-1L00000660000000
+1L00000000600000
+1L00000666660006
+1L00000666660006
+1L00000660600000
 1L00000660000000
 1L00000000000000
 1L00000000000000
 1L00000000000000
 1L000000000000LL
 1L000006600000L1`],
-  [pathUpLeft, bitmap`
+  
+  
+  [pathLeftToUp, bitmap`
 1L000006600000L1
 LL000000000000L1
 00000000000000L1
 00000000000000L1
-00000000000000L1
 00000006600000L1
+00000066660000L1
 00000006600000L1
 60000666600000L1
 60000666600000L1
@@ -408,13 +487,30 @@ LL000000000000L1
 00000000000000L1
 LLLLLLLLLLLLLLL1
 1111111111111111`],
-  [pathUpRight, bitmap`
+  [pathLeftToDown, bitmap`
+1111111111111111
+LLLLLLLLLLLLLLL1
+00000000000000L1
+00000000000000L1
+00000000000000L1
+00000000000000L1
+00000000000000L1
+60000666600000L1
+60000666600000L1
+00000006600000L1
+00000066660000L1
+00000006600000L1
+00000000000000L1
+00000000000000L1
+LL000000000000L1
+1L000006600000L1`],
+  [pathRightToUp, bitmap`
 1L000006600000L1
 1L000000000000LL
 1L00000000000000
 1L00000000000000
-1L00000000000000
 1L00000660000000
+1L00006666000000
 1L00000660000000
 1L00000666600006
 1L00000666600006
@@ -424,21 +520,38 @@ LLLLLLLLLLLLLLL1
 1L00000000000000
 1L00000000000000
 1LLLLLLLLLLLLLLL
-1111111111111111`]
+1111111111111111`],
+  [pathRightToDown, bitmap`
+1111111111111111
+1LLLLLLLLLLLLLLL
+1L00000000000000
+1L00000000000000
+1L00000000000000
+1L00000000000000
+1L00000000000000
+1L00000666600006
+1L00000666600006
+1L00000660000000
+1L00006666000000
+1L00000660000000
+1L00000000000000
+1L00000000000000
+1L000000000000LL
+1L000006600000L1`],
 )
 
 let level = 0
 const levels = [map`
-zyxwtes.ch
-....b.a...
-.f2121214.
-........3.
-.41111115.
-.2........
-.6111111p.
+..........
+..zoooou..
+..q.a..r..
+..qvpx.r..
+..tw.tpw..
+..........
+..pp......
 ..........`]
 
-setBackground("0")
+setBackground("n")
 setMap(levels[level])
 
 onInput("a", () => {
@@ -481,39 +594,35 @@ function spawnMonster(x,y) {
 }
 
 function moveMonsters() {
-  const monsters = getAll(monsterHealth3).concat(getAll(monsterHealth2), getAll(monsterHealth1), getAll(monsterHealth0))
-  
+  const monsters = getAll(monsterHealth3).concat(getAll(monsterHealth2), getAll(monsterHealth1), getAll(monsterHealth0));
+
   monsters.forEach(monster => {
-    const currentX = monster.x
-    const currentY = monster.y
-    
-    // Define the relative positions of adjacent tiles (up, down, left, right)
-    const neighbors = [
-      { dx: 0, dy: -1 }, // Up
-      { dx: 0, dy: 1 },  // Down
-      { dx: -1, dy: 0 }, // Left
-      { dx: 1, dy: 0 }   // Right
-    ]
-    
-    // Iterate over the adjacent tiles
-    for (const neighbor of neighbors) {
-      const nextX = currentX + neighbor.dx
-      const nextY = currentY + neighbor.dy
-      
-      // Get the sprites on the next tile
-      const nextTileSprites = getTile(nextX, nextY)
-      
-      // Check if the next tile contains a road type
-      const isRoadTile = nextTileSprites.some(sprite => pathTypes.includes(sprite.type))
-      
-      // Move the monster if the next tile is a road tile
-      if (isRoadTile) {
-        monster.x = nextX
-        monster.y = nextY
-        break // Exit the loop after finding the first road tile to move to
+    const currentX = monster.x;
+    const currentY = monster.y;
+
+    const currentTileSprites = getTile(currentX, currentY);
+    const currentPathType = currentTileSprites.find(sprite => pathTypes.includes(sprite.type));
+
+    if (currentPathType) {
+      const direction = pathDirections[currentPathType.type];
+
+      if (direction) {
+        const nextX = currentX + direction.dx;
+        const nextY = currentY + direction.dy;
+
+        const nextTileSprites = getTile(nextX, nextY);
+        const isRoadTile = nextTileSprites.some(sprite => pathTypes.includes(sprite.type));
+        if (isRoadTile) {
+          monster.x = nextX;
+          monster.y = nextY;
+        } else {
+          monster.remove()
+        }
       }
+    } else {
+      monster.remove()
     }
-  })
+  });
 }
 
 

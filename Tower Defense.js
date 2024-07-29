@@ -3,12 +3,12 @@ First time? Check out the tutorial game:
 https://sprig.hackclub.com/gallery/getting_started
 
 @title: Tower Defense
-@author: 
+@author: Guerriacan
 @tags: []
 @addedOn: 2024-00-00
 */
 
-const gui = "0"
+const guiCenter = "0"
 const guiTopLeft = "4"
 const guiTopRight = "5"
 const guiTop = "6"
@@ -76,7 +76,7 @@ pathDirections[pathRightToDown] = { dx: 0, dy: 1, ex: 1, ey: 0 }
 const TICKMS = 50
 var gameTickCounter = 0
 
-var gameStart = true
+var gameStart = false
 
 var lifeCount = 3
 var moneyCount = 2
@@ -87,7 +87,7 @@ var monsterSpawnRate = 2000
 var moneySpawnRate = 5000
 
 setLegend(
-  [gui, bitmap`
+  [guiCenter, bitmap`
 CCCCCCCCCCCCCCCC
 CCCCCCCCCCCCCCCC
 CCCCCCCCCCCCCCCC
@@ -727,10 +727,120 @@ const levels = [
 .q..e...r.
 .q..r...r.
 .tppw...f.
+..........`,
+  map`
+.......adc
+..........
+.fpppxvpe.
+.....qr...
+...zutw...
+...qr.....
+.eosyooof.
+..........`,
+  map`
+.......adc
+..........
+.fpx......
+...tx.....
+....tx....
+.....tx...
+......tpe.
+..........`,
+  map`
+.......adc
+..........
+.fppppppx.
+.fppppppq.
+.fppppppe.
+.fppppppr.
+.fppppppw.
+..........`,
+  map`
+.......adc
+..........
+.f.zou.e..
+.q.q.r.r..
+.q.e.f.r..
+.q.....r..
+.tpppppw..
 ..........`
 ]
 let level = Math.floor(Math.random() * levels.length)
 setMap(levels[level])
+
+
+function drawGuiStart() {
+  addSprite(3, 3, guiTopLeft)
+  addSprite(4, 3, guiTop)
+  addSprite(5, 3, guiTop)
+  addSprite(6, 3, guiTopRight)
+  addSprite(3, 4, guiLeft)
+  addSprite(4, 4, guiCenter)
+  addSprite(5, 4, guiCenter)
+  addSprite(6, 4, guiRight)
+  addSprite(3, 5, guiBottomLeft)
+  addSprite(4, 5, guiBottom)
+  addSprite(5, 5, guiBottom)
+  addSprite(6, 5, guiBottomRight)
+
+  addText("TO", { 
+    x: 8,
+    y: 7,
+    color: color`2`
+  })
+  addText("START", { 
+    x: 7,
+    y: 8,
+    color: color`2`
+  })
+  addText("PRESS", { 
+    x: 8,
+    y: 9,
+    color: color`2`
+  })
+  addText("A KEY", { 
+    x: 7,
+    y: 10,
+    color: color`2`
+  })
+}
+
+function drawGuiEnd() {
+  addSprite(3, 3, guiTopLeft)
+  addSprite(4, 3, guiTop)
+  addSprite(5, 3, guiTop)
+  addSprite(6, 3, guiTopRight)
+  addSprite(3, 4, guiLeft)
+  addSprite(4, 4, guiCenter)
+  addSprite(5, 4, guiCenter)
+  addSprite(6, 4, guiRight)
+  addSprite(3, 5, guiBottomLeft)
+  addSprite(4, 5, guiBottom)
+  addSprite(5, 5, guiBottom)
+  addSprite(6, 5, guiBottomRight)
+
+  addText("YOU", { 
+    x: 8,
+    y: 7,
+    color: color`2`
+  })
+  addText("ARE", { 
+    x: 9,
+    y: 8,
+    color: color`2`
+  })
+  addText("DEAD", { 
+    x: 8,
+    y: 9,
+    color: color`2`
+  })
+  addText("x_x", { 
+    x: 9,
+    y: 10,
+    color: color`1`
+  })
+}
+
 
 function interactTank() {
   const specificSprite = getTile(getFirst(select).x, getFirst(select).y).find(sprite => sprite.type === tank)
@@ -839,6 +949,28 @@ onInput("i", () => {
   interactTank()
 })
 
+afterInput(() => {
+  if (!gameStart && lifeCount > 0) {
+    gameStart = true;
+    clearText();
+    clearTile(3, 3);
+    clearTile(4, 3);
+    clearTile(5, 3);
+    clearTile(6, 3);
+    clearTile(3, 4);
+    clearTile(4, 4);
+    clearTile(5, 4);
+    clearTile(6, 4);
+    clearTile(3, 5);
+    clearTile(4, 5);
+    clearTile(5, 5);
+    clearTile(6, 5);
+    setMap(levels[level])
+  }
+})
+
+drawGuiStart()
+
 setInterval(() => {
   if (gameTickCounter < 99900) {
     gameTickCounter += TICKMS
@@ -846,9 +978,8 @@ setInterval(() => {
     gameTickCounter = 0
   }
 
-  clearText()
-
   if (gameStart) {
+    clearText()
     if (gameTickCounter % monsterSpeed == 0) {
       getAll(explosion).forEach(explosion => { explosion.remove() });
       getAll(portal).forEach(portal => {
@@ -884,6 +1015,6 @@ setInterval(() => {
 
   if (lifeCount <= 0) {
     gameStart = false
-    setMap(levels[0])
+    drawGuiEnd()
   }
 }, TICKMS)
